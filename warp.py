@@ -1,91 +1,78 @@
+import urllib.request
+import json
+import datetime
 import random
-import httpx
-import os
+import string
 import time
-import requests
+import os
+import sys
+os.system("title WARP-PLUS-CLOUDFLARE By ALIILAPRO")
+os.system('cls' if os.name == 'nt' else 'clear')
+print('Getting WARP+ Traffic on Github Actions')
+referrer = os.environ["DEVICEID"]
+def genString(stringLength):
+	try:
+		letters = string.ascii_letters + string.digits
+		return ''.join(random.choice(letters) for i in range(stringLength))
+	except Exception as error:
+		print(error)		    
+def digitString(stringLength):
+	try:
+		digit = string.digits
+		return ''.join((random.choice(digit) for i in range(stringLength)))    
+	except Exception as error:
+		print(error)	
+url = f'https://api.cloudflareclient.com/v0a{digitString(3)}/reg'
+def run():
+	try:
+		install_id = genString(22)
+		body = {"key": "{}=".format(genString(43)),
+				"install_id": install_id,
+				"fcm_token": "{}:APA91b{}".format(install_id, genString(134)),
+				"referrer": referrer,
+				"warp_enabled": False,
+				"tos": datetime.datetime.now().isoformat()[:-3] + "+02:00",
+				"type": "Android",
+				"locale": "es_ES"}
+		data = json.dumps(body).encode('utf8')
+		headers = {'Content-Type': 'application/json; charset=UTF-8',
+					'Host': 'api.cloudflareclient.com',
+					'Connection': 'Keep-Alive',
+					'Accept-Encoding': 'gzip',
+					'User-Agent': 'okhttp/3.12.1'
+					}
+		req         = urllib.request.Request(url, data, headers)
+		response    = urllib.request.urlopen(req)
+		status_code = response.getcode()	
+		return status_code
+	except Exception as error:
+		print(error)	
 
-
-def generate_warp_key():
-  """生成一个拥有 1.92EB 流量的 Warp+ 密钥。
-
-  Returns:
-    str: 生成的密钥。
-  """
-
-  headers = {
-    "CF-Client-Version": "a-6.11-2223",
-    "Host": "api.cloudflareclient.com",
-    "Connection": "Keep-Alive",
-    "Accept-Encoding": "gzip",
-    "User-Agent": "okhttp/3.12.1",
-  }
-
-  with httpx.Client(base_url="https://api.cloudflareclient.com/v0a2223",
-                   headers=headers,
-                   timeout=30.0) as client:
-
-    # 创建两个临时账户。
-    r = client.post("/reg")
-    id1 = r.json()["id"]
-    license1 = r.json()["account"]["license"]
-    token1 = r.json()["token"]
-
-    r = client.post("/reg")
-    id2 = r.json()["id"]
-    token2 = r.json()["token"]
-
-    # 将其中一个账户设置为另一个账户的推荐人。
-    headers_get = {"Authorization": f"Bearer {token1}"}
-    headers_get2 = {"Authorization": f"Bearer {token2}"}
-    headers_post = {
-        "Content-Type": "application/json; charset=UTF-8",
-        "Authorization": f"Bearer {token1}",
-    }
-
-    json = {"referrer": f"{id2}"}
-    client.patch(f"/reg/{id1}", headers=headers_post, json=json)
-
-    # 删除临时账户。
-    client.delete(f"/reg/{id2}", headers=headers_get2)
-
-    # 获取随机密钥。
-    keys = requests.get('https://findladders.com/file/warp-base-keys')
-    pkeys = keys.content.decode('UTF8').strip()
-    keys = pkeys.split(',')
-    key = random.choice(keys)
-
-    # 更新其中一个账户的许可证。
-    json = {"license": f"{key}"}
-    client.put(f"/reg/{id1}/account", headers=headers_post, json=json)
-
-    # 获取更新后的账户信息。
-    r = client.get(f"/reg/{id1}/account", headers=headers_get)
-    account_type = r.json()["account_type"]
-    referral_count = r.json()["referral_count"]
-    license = r.json()["license"]
-
-    # 删除临时账户。
-    client.delete(f"/reg/{id1}", headers=headers_get)
-
-    return license, referral_count
-
-
-def main():
-  """生成并保存指定数量的 Warp+ 密钥。"""
-
-  # 获取用户输入。
-  value_int = int(input("请输入你需要生成的 WARP+ 密钥数量：\n> "))
-
-  # 生成密钥并保存到文件。
-  with open("warp.txt", "w") as f:
-    for _ in range(value_int):
-      license, referral_count = generate_warp_key()
-      f.write(f"{license}\n")
-      print(f"License Key: {license}\nData Count: {referral_count} of GB(s)")
-
-  # 显示完成信息。
-  print("密钥已保存到文件 warp.txt 中")
-
-
-if __name__ == "__main__":
-  main()
+g = 0
+b = 0
+while True:
+	result = run()
+	if result == 200:
+		g = g + 1
+		os.system('cls' if os.name == 'nt' else 'clear')
+		print("")
+		print("Getting WARP+ Traffic")
+		print("")
+		animation = ["[■□□□□□□□□□] 10%","[■■□□□□□□□□] 20%", "[■■■□□□□□□□] 30%", "[■■■■□□□□□□] 40%", "[■■■■■□□□□□] 50%", "[■■■■■■□□□□] 60%", "[■■■■■■■□□□] 70%", "[■■■■■■■■□□] 80%", "[■■■■■■■■■□] 90%", "[■■■■■■■■■■] 100%"] 
+		for i in range(len(animation)):
+			time.sleep(0.5)
+			sys.stdout.write("\r[+] Preparing... " + animation[i % len(animation)])
+			sys.stdout.flush()
+		print(f"\n[-] WORK ON ID: {referrer}")    
+		print(f"[:)] {g} GB has been successfully added to your account.")
+		print(f"[#] Total: {g} Good {b} Bad")
+		print("[*] After 18 seconds, a new request will be sent.")
+		time.sleep(18)
+	else:
+		b = b + 1
+		os.system('cls' if os.name == 'nt' else 'clear')
+		print("")
+		print("Getting WARP+ Traffic")
+		print("")
+		print("[:(] Error when connecting to server.")
+		print(f"[#] Total: {g} Good {b} Bad")	
